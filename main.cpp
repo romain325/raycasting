@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include <fstream>
+#include <cmath>
 
 // ##############################   COLOR   ################################
 uint32_t pack_color(const uint8_t r,const uint8_t g, const uint8_t b, const uint8_t a = 255){
@@ -41,6 +42,7 @@ void gen_ppm(const std::string file, const std::vector<uint32_t> &img, const siz
 
 int main() {
     const size_t w = 512, h = 512, map_w = 16, map_h = 16;
+    float player_x = 3.5, player_y = 2.5, player_a = 1.5;
     std::vector<uint32_t> framebuff(w*h, 255);
     const char map[] = "0000222222220000"\
                        "1              0"\
@@ -78,6 +80,15 @@ int main() {
             // Render deep purple rectangle where map need isnt ' '
             draw_rectangle(framebuff, w,h, block_w*j, block_h*i, block_w, block_h, pack_color(216,191,216));
         }
+    }
+
+    draw_rectangle(framebuff,w,h,player_x*block_w, player_y*block_h,5,5, pack_color(255,255,255));
+
+    for (float i = 0; i < 20; i+=0.5) {
+        float cx = player_x + i*cos(player_a) ,cy = player_y + i*sin(player_a);
+        if(map[int(cx) + int(cy)*map_w] != ' ') break;
+        size_t px_x = cx*block_w, px_y = cy*block_h;
+        framebuff[px_x + px_y*w] = pack_color(255,255,255);
     }
 
     gen_ppm("test.ppm", framebuff, w,h);
