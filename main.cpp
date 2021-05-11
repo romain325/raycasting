@@ -41,7 +41,7 @@ void gen_ppm(const std::string file, const std::vector<uint32_t> &img, const siz
 }
 
 int main() {
-    const size_t w = 512, h = 512, map_w = 16, map_h = 16;
+    const size_t w = 1024, h = 512, map_w = 16, map_h = 16;
     const float fov = M_PI/3.0;
     float player_x = 3.5, player_y = 2.5, player_a = 1.5;
     std::vector<uint32_t> framebuff(w*h, 255);
@@ -72,8 +72,9 @@ int main() {
         }
     }
 
+
     // DRAW MAP WALLS
-    const size_t block_w = w/map_w,
+    const size_t block_w = w/(map_w*2),
                  block_h = h/map_h;
     for(size_t i = 0; i < map_h; i++){
         for(size_t j = 0; j < map_w; j++){
@@ -83,16 +84,22 @@ int main() {
         }
     }
 
-    draw_rectangle(framebuff,w,h,player_x*block_w, player_y*block_h,5,5, pack_color(255,255,255));
+    //draw_rectangle(framebuff,w,h,player_x*block_w, player_y*block_h,5,5, pack_color(255,255,255));
 
-    for (int j = 0; j < w; ++j) {
-        float angle = player_a-fov/2 + fov*j/float(w);
-        for (float i = 0; i < 20; i+=0.5) {
+    for (int j = 0; j < w/2; ++j) {
+        float angle = player_a-fov/2 + fov*j/float(w/2);
+        for (float i = 0; i < 20; i+=0.05) {
             float   cx = player_x + i*cos(angle),
                     cy = player_y + i*sin(angle);
-            if(map[int(cx) + int(cy)*map_w] != ' ') break;
+
             size_t px_x = cx*block_w, px_y = cy*block_h;
             framebuff[px_x + px_y*w] = pack_color(255,255,255);
+
+            if(map[int(cx) + int(cy)*map_w] != ' ') {
+                size_t col_h = h/i;
+                draw_rectangle(framebuff, w, h, w/2+j, h/2-col_h/2, 1, col_h, pack_color(0, 255, 255));
+                break;
+            }
         }
     }
 
