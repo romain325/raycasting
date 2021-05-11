@@ -42,6 +42,7 @@ void gen_ppm(const std::string file, const std::vector<uint32_t> &img, const siz
 
 int main() {
     const size_t w = 512, h = 512, map_w = 16, map_h = 16;
+    const float fov = M_PI/3.0;
     float player_x = 3.5, player_y = 2.5, player_a = 1.5;
     std::vector<uint32_t> framebuff(w*h, 255);
     const char map[] = "0000222222220000"\
@@ -84,12 +85,17 @@ int main() {
 
     draw_rectangle(framebuff,w,h,player_x*block_w, player_y*block_h,5,5, pack_color(255,255,255));
 
-    for (float i = 0; i < 20; i+=0.5) {
-        float cx = player_x + i*cos(player_a) ,cy = player_y + i*sin(player_a);
-        if(map[int(cx) + int(cy)*map_w] != ' ') break;
-        size_t px_x = cx*block_w, px_y = cy*block_h;
-        framebuff[px_x + px_y*w] = pack_color(255,255,255);
+    for (int j = 0; j < w; ++j) {
+        float angle = player_a-fov/2 + fov*j/float(w);
+        for (float i = 0; i < 20; i+=0.5) {
+            float   cx = player_x + i*cos(angle),
+                    cy = player_y + i*sin(angle);
+            if(map[int(cx) + int(cy)*map_w] != ' ') break;
+            size_t px_x = cx*block_w, px_y = cy*block_h;
+            framebuff[px_x + px_y*w] = pack_color(255,255,255);
+        }
     }
+
 
     gen_ppm("test.ppm", framebuff, w,h);
     return 0;
