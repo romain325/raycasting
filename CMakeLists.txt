@@ -20,13 +20,15 @@ endfunction()
 enable_cxx_compiler_flag_if_supported("-Wall")
 enable_cxx_compiler_flag_if_supported("-Wextra")
 enable_cxx_compiler_flag_if_supported("-pedantic")
-enable_cxx_compiler_flag_if_supported("-std=c++11")
 enable_cxx_compiler_flag_if_supported("-O3")
 
 file(GLOB SOURCES
         "${SRC_DIR}/*.h"
         "${SRC_DIR}/*.cpp"
         )
+find_package(SDL2 REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
 
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
+target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR} ${SDL2_LIBRARY}")
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
